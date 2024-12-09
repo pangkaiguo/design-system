@@ -6,6 +6,7 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isFrontPage = pathname.includes('pages/') || pathname === '/';
 
   const handleLogout = async () => {
     try {
@@ -28,7 +29,7 @@ const Header = () => {
     }
   };
 
-  return isAuthPage ? null : (
+  return isAuthPage || isFrontPage ? null : (
     <header className="sticky top-0 z-50 bg-black text-white p-4 flex justify-between items-center border-b border-gray-800">
       <h1 className="text-xl font-bold">Admin Dashboard</h1>
       <button
