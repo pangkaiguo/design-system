@@ -89,7 +89,6 @@ const PageEditor = () => {
           className="p-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* 使用 MDX 编辑器代替 textarea */}
         <MDEditor
           value={content}
           onChange={setContent}
