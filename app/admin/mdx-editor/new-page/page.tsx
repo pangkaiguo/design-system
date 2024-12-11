@@ -21,7 +21,7 @@ const PageEditor = () => {
 
     async function fetchPage() {
       try {
-        const res = await fetch(`/api/page/slug/${slug}`);
+        const res = await fetch(`/api/pages/slug/${slug}`);
         if (!res.ok) throw new Error('Failed to fetch page');
         const data = await res.json();
         setTitle(data.title);
@@ -52,7 +52,7 @@ const PageEditor = () => {
     };
 
     try {
-      const res = await fetch(`/api/page${isEditMode ? `/slug/${slug}` : ''}`, {
+      const res = await fetch(`/api/pages${isEditMode ? `/slug/${slug}` : ''}`, {
         method: isEditMode ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pageData),
@@ -77,7 +77,7 @@ const PageEditor = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full mx-auto">
       <h1 className="text-2xl font-bold mb-4">{isEditMode ? `Edit Page` : 'Create New Page'}</h1>
       <div className={`flex flex-col space-y-4 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         {error && <p className="text-red-500">{error}</p>}

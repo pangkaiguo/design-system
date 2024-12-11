@@ -20,12 +20,12 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
           where: { email: credentials?.email },
         });
 
-        if (user && bcrypt.compareSync(credentials?.password || "", user.password)) {
-          return { id: user.id, email: user.email, role: user.role };
+        if (user && bcrypt.compareSync(credentials?.password || "", users.password)) {
+          return { id: users.id, email: users.email, role: users.role };
         }
 
         return null;

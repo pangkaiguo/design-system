@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
 
   try {
     console.log('Fetching page with slug:', slug);
-    const page = await prisma.page.findUnique({
+    const page = await prisma.pages.findUnique({
       where: { slug },
     });
 
@@ -43,7 +43,7 @@ export async function PUT(req: Request, { params }: { params: { slug: string } }
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const updatedPage = await prisma.page.update({
+    const updatedPage = await prisma.pages.update({
       where: { slug },
       data: { title, content },
     });
@@ -64,7 +64,7 @@ export async function DELETE(req: Request, { params }: { params: { slug: string 
   }
 
   try {
-    await prisma.page.delete({
+    await prisma.pages.delete({
       where: { slug },
     });
 

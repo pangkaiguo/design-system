@@ -24,7 +24,7 @@ const EditPage = (props: { params: { slug: string } }) => {
 
     async function fetchPage() {
       try {
-        const res = await fetch(`/api/page/${slug}`);
+        const res = await fetch(`/api/pages/${slug}`);
         if (!res.ok) throw new Error(`Page not found: ${slug}`);
         const data = await res.json();
         setPage(data);
@@ -39,7 +39,7 @@ const EditPage = (props: { params: { slug: string } }) => {
   const handleSave = async () => {
     if (!slug) return;
     try {
-      const res = await fetch(`/api/page/${slug}`, {
+      const res = await fetch(`/api/pages/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(page),
@@ -64,7 +64,7 @@ const EditPage = (props: { params: { slug: string } }) => {
     if (!confirmed) return;
 
     try {
-      const res = await fetch(`/api/page/${slug}`, {
+      const res = await fetch(`/api/pages/${slug}`, {
         method: 'DELETE',
       });
 
@@ -77,7 +77,7 @@ const EditPage = (props: { params: { slug: string } }) => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full mx-auto">
       <h1 className="text-2xl font-bold mb-4">Edit Page</h1>
       <div className="flex flex-col space-y-4">
         <input

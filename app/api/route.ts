@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === "development") {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     try {
-      const pages = await prisma.page.findMany();
+      const pages = await prisma.pages.findMany();
       res.status(200).json(pages);
     } catch (error) {
       console.error(error);
@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      const page = await prisma.page.create({
+      const page = await prisma.pages.create({
         data: { title, slug, content },
       });
       res.status(201).json(page);

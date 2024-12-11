@@ -23,7 +23,7 @@ export default function RootLayout({
         <ClientWrapper>
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-1 flex flex-col justify-between p-4">
+            <main className="p-4">
               {children}
             </main>
             <Footer />

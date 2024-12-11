@@ -13,28 +13,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Page {
+model Pages {
   id        String   @id @default(cuid())
   title     String
   slug      String   @unique
   content   String // MDX content
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("Pages")
 }
 
-model User {
+model Users {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
   role      String
   createdAt DateTime @default(now())
+
+  @@map("Users")
 }
 
-model Version {
+model Versions {
   id          Int      @id @default(autoincrement())
   version     String
   releaseDate DateTime
   changelog   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("Versions")
 }

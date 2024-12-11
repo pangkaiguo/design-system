@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
-// http://localhost:3000/api/version
+// http://localhost:3000/api/versions
 // get all versions
-// const response = await fetch('/api/version', {
+// const response = await fetch('/api/versions', {
 //   method: 'GET',
 // });
 // const versions = await response.json();
 // console.log(versions);
 
 // create a new version
-// const response = await fetch('/api/version', {
+// const response = await fetch('/api/versions', {
 //   method: 'POST',
 //   headers: {
 //     'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ const prisma: any = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    const versions = await prisma.version.findMany();
+    const versions = await prisma.versions.findMany();
     return NextResponse.json(versions);
   } catch (error: any) {
     console.error(error.message);
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const newVersion = await prisma.version.create({
+    const newVersion = await prisma.versions.create({
       data: {
         version,
         releaseDate,

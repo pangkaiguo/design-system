@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // Get all pages
 export async function GET(req: NextRequest) {
   try {
-    const pages = await prisma.page.findMany();
+    const pages = await prisma.pages.findMany();
     return NextResponse.json(pages);
   } catch (error) {
     console.error(error);
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // If no slug is provided, generate a UUID
     const generatedSlug = slug || uuid4();
 
-    const newPage = await prisma.page.create({
+    const newPage = await prisma.pages.create({
       data: { title, slug: generatedSlug, content },
     });
 
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    const updatedPage = await prisma.page.update({
+    const updatedPage = await prisma.pages.update({
       where: { slug },  // Use slug to find the page
       data: {
         title,
@@ -70,7 +70,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    await prisma.page.delete({
+    await prisma.pages.delete({
       where: { slug },  // Use slug to delete the page
     });
     return NextResponse.json({ message: 'Page deleted' });

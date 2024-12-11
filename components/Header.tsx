@@ -6,7 +6,7 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isAuthPage = pathname === '/login' || pathname === '/register';
-  const isFrontPage = pathname.includes('pages/') || pathname === '/';
+  const isFrontPage = pathname.includes('/pages') || pathname === '/';
 
   const handleLogout = async () => {
     try {

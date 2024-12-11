@@ -1,57 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-const AdminPages = () => {
-  const [pages, setPages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  // Fetch pages
-  useEffect(() => {
-    async function fetchPages() {
-      try {
-        const res = await fetch('/api/page');
-        if (!res.ok) throw new Error('Failed to fetch pages');
-        const data = await res.json();
-        setPages(data);
-      } catch (err) {
-        setError('Failed to load pages. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPages();
-  }, []);
-
+const AdminDashboard = () => {
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Admin Pages</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* MDX Editor Card */}
+        <div className="border rounded-lg shadow-lg p-6 text-center">
+          <h2 className="text-2xl font-semibold mb-4">MDX Editor</h2>
+          <p className="text-gray-600 mb-6">
+            Manage and edit your MDX pages effortlessly.
+          </p>
+          <Link
+            href="/admin/mdx-editor"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Go to MDX Editor
+          </Link>
+        </div>
+
+        {/* Users List Card */}
+        <div className="border rounded-lg shadow-lg p-6 text-center">
+          <h2 className="text-2xl font-semibold mb-4">Users Management</h2>
+          <p className="text-gray-600 mb-6">
+            View and manage the list of users.
+          </p>
+          <Link
+            href="/admin/users"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Go to Users Management
+          </Link>
+        </div>
       </div>
-
-      {loading && <p className="text-gray-600">Loading pages...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <ul className="space-y-4">
-          {pages.map((page: any) => (
-            <li key={page.slug}>
-              <Link
-                href={`/admin/mdx-editor/${page.slug}`}
-                className="text-blue-500 hover:underline"
-              >
-                {page.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 };
 
-export default AdminPages;
+export default AdminDashboard;
