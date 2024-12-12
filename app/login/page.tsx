@@ -8,6 +8,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/admin';
@@ -16,6 +17,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMessage('');
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -24,49 +26,67 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error('Invalid credentials');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Invalid credentials');
+      }
 
-      const data = await res.json();
-      alert('Login successful!');
-      router.push(redirect);
-    } catch (err) {
-      setError('Login failed. Please try again.');
+      setSuccessMessage('Login successful! Redirecting...');
+      setTimeout(() => {
+        router.push(redirect);
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black text-white">
-      <div className="w-full max-w-md p-8 bg-gray-800 rounded shadow-md">
+    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+
         {error && <div className="text-red-500 mb-4">{error}</div>}
+        {successMessage && (
+          <div className="text-green-500 mb-4">{successMessage}</div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-2 border rounded w-full bg-gray-900 text-white focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-2 border rounded w-full bg-gray-900 text-white focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+          <div>
+            <input
+              type="text"
+              placeholder="Email or Username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold ${
+                loading && 'opacity-50 cursor-not-allowed'
+              }`}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </div>
         </form>
-        <p className="mt-4 text-center">
+
+        <p className="mt-4 text-center text-gray-400">
           Don't have an account?{' '}
           <a href="/register" className="text-blue-500 hover:underline">
             Register here

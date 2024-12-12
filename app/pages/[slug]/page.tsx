@@ -1,4 +1,7 @@
 // app/pages/[slug]/page.tsx
+'use client';
+
+import React from 'react';
 import MarkdownView from './MarkdownView';
 import Breadcrumbs from '@/components/Breadcrumbs';
 

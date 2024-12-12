@@ -4,9 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
-const UserForm = ({ userId }: { userId?: string }) => {
-  const [form, setForm] = useState({ email: '', role: '', password: '' });
-  const [currentUser, setCurrentUser] = useState({ email: '', role: '', userId: '' });
+const UserForm = ({ id }: { id?: string }) => {
+  const [form, setForm] = useState({
+    email: '',
+    username: '',
+    gender: '',
+    role: '',
+    password: '',
+  });
+  const [currentUser, setCurrentUser] = useState({ email: '', role: '', id: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -18,16 +24,17 @@ const UserForm = ({ userId }: { userId?: string }) => {
         if (!res.ok) throw new Error('Failed to fetch current user');
         const data = await res.json();
         setCurrentUser(data);
+        console.log(data);
       } catch (err: any) {
         setError('Failed to authenticate');
       }
     }
     fetchCurrentUser();
 
-    if (userId) {
+    if (id) {
       async function fetchUser() {
         try {
-          const res = await fetch(`/api/users/${userId}`);
+          const res = await fetch(`/api/users/${id}`);
           if (!res.ok) throw new Error('Failed to fetch user');
           const data = await res.json();
           setForm(data);
@@ -41,12 +48,12 @@ const UserForm = ({ userId }: { userId?: string }) => {
     } else {
       setLoading(false);
     }
-  }, [userId]);
+  }, [id]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const method = userId ? 'PUT' : 'POST';
-    const endpoint = userId ? `/api/users/${userId}` : '/api/users';
+    const method = id ? 'PUT' : 'POST';
+    const endpoint = id ? `/api/users/${id}` : '/api/users';
 
     try {
       const res = await fetch(endpoint, {
@@ -55,9 +62,12 @@ const UserForm = ({ userId }: { userId?: string }) => {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error(`Failed to ${userId ? 'update' : 'create'} user`);
-      alert(`User ${userId ? 'updated' : 'created'} successfully`);
-      router.push('/admin/users');
+      if (!res.ok) { 
+        throw new Error(`Failed to ${id ? 'update' : 'create'} user`); 
+      } else {
+        alert(`User ${id ? 'updated' : 'created'} successfully`);
+        router.push('/admin/users');
+      }
     } catch (err: any) {
       alert(err.message);
     }
@@ -69,7 +79,7 @@ const UserForm = ({ userId }: { userId?: string }) => {
       <div className="min-h-screen bg-black flex items-start justify-center">
         <div className="w-full bg-gray-900 text-white p-8 rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold text-center mb-6">
-            {userId ? 'Edit User' : 'Add New User'}
+            {id ? 'Edit User' : 'Add New User'}
           </h1>
           {loading ? (
             <p className="text-gray-400 text-center">Loading...</p>
@@ -91,6 +101,35 @@ const UserForm = ({ userId }: { userId?: string }) => {
               </div>
 
               <div className="flex flex-col">
+                <label htmlFor="username" className="text-gray-300 mb-1">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={form.username}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
+                  placeholder="Enter username"
+                  required
+                  className="p-3 border border-gray-700 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label htmlFor="gender" className="text-gray-300 mb-1">Gender</label>
+                <select
+                  id="gender"
+                  value={form.gender}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  required
+                  className="p-3 border border-gray-700 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="UNSPECIFIED">Unspecified</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col">
                 <label htmlFor="role" className="text-gray-300 mb-1">Role</label>
                 <select
                   id="role"
@@ -100,12 +139,12 @@ const UserForm = ({ userId }: { userId?: string }) => {
                   className="p-3 border border-gray-700 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Role</option>
-                  {(form.role === 'admin' || currentUser.role === 'admin') && <option value="admin">Admin</option>}
-                  <option value="user">User</option>
+                  {(form.role === 'ADMIN' || currentUser.role === 'ADMIN') && <option value="ADMIN">Admin</option>}
+                  <option value="USER">User</option>
                 </select>
               </div>
 
-              {!userId && (
+              {!id && (
                 <div className="flex flex-col">
                   <label htmlFor="password" className="text-gray-300 mb-1">Password</label>
                   <input
@@ -124,7 +163,7 @@ const UserForm = ({ userId }: { userId?: string }) => {
                 type="submit"
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-md shadow transition duration-200 text-white"
               >
-                {userId ? 'Update User' : 'Create User'}
+                {id ? 'Update User' : 'Create User'}
               </button>
             </form>
           )}

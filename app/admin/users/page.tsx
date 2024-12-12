@@ -8,11 +8,16 @@ const AdminUsersList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState<{ userId: string; email: string; role: string }>({ userId: '', email: '', role: '' });
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; username: string; role: string }>({
+    id: '',
+    email: '',
+    username: '',
+    role: '',
+  });
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch current user ID to prevent them from deleting their own account
+    // Fetch current user information
     async function fetchCurrentUser() {
       try {
         const res = await fetch('/api/auth/current-user');
@@ -45,7 +50,7 @@ const AdminUsersList = () => {
 
   const handleDelete = async (id: string) => {
     // Prevent deleting the current user
-    if (currentUser.userId === id) {
+    if (currentUser.id === id) {
       alert("You can't delete your own account.");
       return;
     }
@@ -57,7 +62,6 @@ const AdminUsersList = () => {
       const res = await fetch(`/api/users/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
       });
 
       if (!res.ok) throw new Error('Failed to delete user');
@@ -66,6 +70,7 @@ const AdminUsersList = () => {
       alert(err.message);
     }
   };
+
   return (
     <>
       <Breadcrumbs backLink="/admin/" />
@@ -73,7 +78,7 @@ const AdminUsersList = () => {
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white">User Management</h1>
-          {currentUser.role === 'admin' && (
+          {currentUser.role === 'ADMIN' && (
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
               onClick={() => router.push('/admin/users/new')}
@@ -92,8 +97,11 @@ const AdminUsersList = () => {
               <thead>
                 <tr className="bg-gray-800 border-b">
                   <th className="p-4 text-gray-300 font-medium">ID</th>
+                  <th className="p-4 text-gray-300 font-medium">Username</th>
                   <th className="p-4 text-gray-300 font-medium">Email</th>
                   <th className="p-4 text-gray-300 font-medium">Role</th>
+                  <th className="p-4 text-gray-300 font-medium">Created At</th>
+                  <th className="p-4 text-gray-300 font-medium">Updated At</th>
                   <th className="p-4 text-gray-300 font-medium">Actions</th>
                 </tr>
               </thead>
@@ -105,10 +113,13 @@ const AdminUsersList = () => {
                       } border-b hover:bg-gray-600 transition`}
                   >
                     <td className="p-4 text-gray-200">{user.id}</td>
+                    <td className="p-4 text-gray-200">{user.username}</td>
                     <td className="p-4 text-gray-200">{user.email}</td>
                     <td className="p-4 text-gray-200 capitalize">{user.role}</td>
+                    <td className="p-4 text-gray-200">{new Date(user.createdAt).toLocaleString()}</td>
+                    <td className="p-4 text-gray-200">{new Date(user.updatedAt).toLocaleString()}</td>
                     <td className="p-4 flex space-x-2">
-                      {(currentUser.role === 'admin' || (currentUser.role !== 'admin' && user.id === currentUser.userId)) && (
+                      {(currentUser.role === 'ADMIN' || (currentUser.role !== 'ADMIN' && user.id === currentUser.id)) && (
                         <button
                           className="px-3 py-1 text-sm bg-green-500 text-white rounded shadow hover:bg-green-600 transition"
                           onClick={() => router.push(`/admin/users/${user.id}`)}
@@ -117,7 +128,7 @@ const AdminUsersList = () => {
                         </button>
                       )}
                       {/* Conditionally render the delete button */}
-                      {user.id !== currentUser.userId && currentUser.role === 'admin' && (
+                      {user.id !== currentUser.id && currentUser.role === 'ADMIN' && (
                         <button
                           className="px-3 py-1 text-sm bg-red-500 text-white rounded shadow hover:bg-red-600 transition"
                           onClick={() => handleDelete(user.id)}

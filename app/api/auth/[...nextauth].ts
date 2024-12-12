@@ -6,8 +6,13 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 declare module "next-auth" {
-  interface SessionOptions {
-    jwt?: boolean;
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      username: string;
+      role: string;
+    };
   }
 }
 
@@ -16,21 +21,66 @@ export default NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        emailOrUsername: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const user = await prisma.users.findUnique({
-          where: { email: credentials?.email },
-        });
-
-        if (user && bcrypt.compareSync(credentials?.password || "", users.password)) {
-          return { id: users.id, email: users.email, role: users.role };
+        if (!credentials) {
+          throw new Error("Missing credentials");
         }
 
-        return null;
+        const { emailOrUsername, password } = credentials;
+
+        const user = await prisma.users.findFirst({
+          where: {
+            OR: [
+              { email: emailOrUsername },
+              { username: emailOrUsername },
+            ],
+          },
+        });
+
+        if (!user) {
+          throw new Error("Invalid email/username or password");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          throw new Error("Invalid email/username or password");
+        }
+
+        return { id: user.id, email: user.email, username: user.username, role: user.role };
       },
     }),
   ],
-  session: { jwt: true as any, maxAge: 30 * 24 * 60 * 60 },
+  session: {
+    strategy: "jwt", 
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.username = user.username;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          id: token.id as string,
+          email: token.email as string,
+          username: token.username as string,
+          role: token.role as string,
+        };
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/auth/login",
+    signOut: "/auth/logout",
+  },
 });

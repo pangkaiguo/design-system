@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,32 +9,100 @@ datasource db {
 
 model Pages {
   id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-  content   String // MDX content
+  title     String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  content   String   @db.Text
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("Pages")
 }
 
 model Users {
   id        String   @id @default(cuid())
-  email     String   @unique
+  email     String   @unique @db.VarChar(255)
   password  String
-  role      String
+  username  String   @unique @default("default_username") @db.VarChar(50)
+  gender    Gender   @default(UNSPECIFIED)
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  groups     Group[]     @relation("UserGroups")
+  userGroups UserGroup[]
 
   @@map("Users")
 }
 
+model Group {
+  id              String            @id @default(cuid())
+  name            String            @unique @db.VarChar(100)
+  permissions     Permission[]      @relation("GroupPermissions")
+  users           Users[]           @relation("UserGroups")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
+  userGroups      UserGroup[]
+  GroupPermission GroupPermission[]
+
+  @@map("Groups")
+}
+
+model Permission {
+  id              String            @id @default(cuid())
+  action          String            @db.VarChar(50)
+  resource        String            @db.VarChar(50)
+  groups          Group[]           @relation("GroupPermissions")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
+  GroupPermission GroupPermission[]
+
+  @@unique([action, resource])
+  @@map("Permissions")
+}
+
+model UserGroup {
+  userId    String
+  groupId   String
+  user      Users    @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@id([userId, groupId])
+  @@map("UserGroups")
+}
+
+model GroupPermission {
+  groupId      String
+  permissionId String
+  group        Group      @relation(fields: [groupId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+
+  @@id([groupId, permissionId])
+  @@map("GroupPermissions")
+}
+
 model Versions {
   id          Int      @id @default(autoincrement())
-  version     String
+  version     String   @db.VarChar(50)
   releaseDate DateTime
-  changelog   String
+  changelog   String   @db.Text
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now()) @updatedAt
 
   @@map("Versions")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNSPECIFIED
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
 }

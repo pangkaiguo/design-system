@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// http://localhost:3000/api/auth/logout
+// /api/auth/logout
 // const response = await fetch('/api/auth/logout', {
 //   method: 'POST',
 //   headers: {

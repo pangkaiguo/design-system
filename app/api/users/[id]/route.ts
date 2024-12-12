@@ -12,14 +12,15 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { role: string };
-    return decoded.role === 'admin'; // Ensure the user is an admin
+    return decoded.role === 'ADMIN';
   } catch {
     return false;
   }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+// GET: Fetch a single user by ID
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const user = await prisma.users.findUnique({
       where: { id },
@@ -27,6 +28,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         id: true,
         email: true,
         role: true,
+        username: true,
+        gender: true,
         createdAt: true,
       },
     });
@@ -41,12 +44,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
   }
 }
-
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+// PUT: Update a user by ID
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   try {
-    const { email, role } = (await req.json()) as { email: string; role: string };
+    const { email, role, username, gender } = (await req.json()) as {
+      email: string;
+      role: string;
+      username?: string;
+      gender?: string;
+    };
 
     if (!email || !role) {
       return NextResponse.json({ error: 'Email and role are required' }, { status: 400 });
@@ -60,14 +68,38 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const updatedUser = await prisma.users.update({
       where: { id },
-      data: { email, role },
+      data: {
+        email,
+        role,
+        username,
+        gender,
+      },
     });
 
-    return NextResponse.json({
+    const token = jwt.sign(
+      {
+        id: updatedUser.id,
+        role: updatedUser.role,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        gender: updatedUser.gender,
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const response = NextResponse.json({
       id: updatedUser.id,
       email: updatedUser.email,
       role: updatedUser.role,
+      username: updatedUser.username,
+      gender: updatedUser.gender,
     });
+
+    // Set the new JWT as a cookie in the response
+    response.cookies.set('token', token, { httpOnly: true, path: '/' });
+
+    return response;
   } catch (error) {
     console.error('Error updating user:', error);
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
@@ -75,12 +107,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE: Delete user by ID (Admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin(req))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const userExists = await prisma.users.findUnique({ where: { id } });

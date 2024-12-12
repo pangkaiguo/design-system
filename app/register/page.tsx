@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [gender, setGender] = useState('UNSPECIFIED');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -26,16 +28,16 @@ const RegisterPage = () => {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, username, password, gender }),
       });
 
       if (!res.ok) throw new Error('Registration failed');
 
       const data = await res.json();
-      alert('Registration successful!');
+      alert('Registration successful!', data?.message);
       router.push('/login');
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+    } catch (err: any) {
+      setError('Registration failed. Please try again.', err);
     } finally {
       setLoading(false);
     }
@@ -55,6 +57,24 @@ const RegisterPage = () => {
             className="p-2 border rounded w-full bg-gray-900 text-white focus:ring-2 focus:ring-blue-500"
             required
           />
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="p-2 border rounded w-full bg-gray-900 text-white focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="p-2 border rounded w-full bg-gray-900 text-white focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="UNSPECIFIED">Select Gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+          </select>
           <input
             type="password"
             placeholder="Password"

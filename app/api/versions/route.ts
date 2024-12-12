@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
-// http://localhost:3000/api/versions
+// /api/versions
 // get all versions
 // const response = await fetch('/api/versions', {
 //   method: 'GET',

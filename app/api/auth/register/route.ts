@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
-// http://localhost:3000/api/auth/register
+// /api/auth/register
 // Method: POST
 // Content-Type: application/json
 // {
 //   "email": "user@example.com",
+//   "username": "your_username",
 //   "password": "your_password",
-//   "role": "user"
 // }
 
 const prisma = new PrismaClient();
@@ -32,14 +32,25 @@ async function parseRequestBody(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await parseRequestBody(req);
-    const { email, password, role = 'user' } = body;
+    const { email, username, password, gender = 'UNSPECIFIED' } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!email || !username || !password) {
+      return NextResponse.json(
+        { error: 'Email, username, and password are required' },
+        { status: 400 }
+      );
+    }
+    if (!['MALE', 'FEMALE', 'UNSPECIFIED'].includes(gender)) {
+      return NextResponse.json(
+        { error: 'Invalid gender value' },
+        { status: 400 }
+      );
     }
 
-    const existingUser = await prisma.users.findUnique({
-      where: { email },
+    const existingUser = await prisma.users.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
     });
 
     if (existingUser) {
@@ -51,8 +62,9 @@ export async function POST(req: NextRequest) {
     const user = await prisma.users.create({
       data: {
         email,
+        username,
         password: hashedPassword,
-        role,
+        gender,
       },
     });
 
