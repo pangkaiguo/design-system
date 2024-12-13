@@ -35,8 +35,12 @@ const LoginPage = () => {
       setTimeout(() => {
         router.push(redirect);
       }, 1500);
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Login failed. Please try again.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,8 +49,7 @@ const LoginPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-
+        <h1 className="text-2xl font-bold mb-6 text-center">Login DesignSystem CMS</h1>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {successMessage && (
           <div className="text-green-500 mb-4">{successMessage}</div>
@@ -77,9 +80,8 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold ${
-                loading && 'opacity-50 cursor-not-allowed'
-              }`}
+              className={`w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold ${loading && 'opacity-50 cursor-not-allowed'
+                }`}
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
@@ -87,7 +89,7 @@ const LoginPage = () => {
         </form>
 
         <p className="mt-4 text-center text-gray-400">
-          Don't have an account?{' '}
+          Don&apos;t have an account?&nbsp;
           <a href="/register" className="text-blue-500 hover:underline">
             Register here
           </a>

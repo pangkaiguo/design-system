@@ -1,11 +1,12 @@
 'use client';
 
+import { Pages } from '@/app/types';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const MdxPages = () => {
-  const [pages, setPages] = useState<any[]>([]);
+  const [pages, setPages] = useState<Pages[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -16,8 +17,12 @@ const MdxPages = () => {
         if (!res.ok) throw new Error('Failed to fetch pages');
         const data = await res.json();
         setPages(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || 'Getting pages failed. Please try again.');
+        } else {
+          setError('Getting pages failed. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
@@ -35,8 +40,12 @@ const MdxPages = () => {
 
       if (!res.ok) throw new Error('Failed to delete page');
       setPages(pages.filter((page) => page.slug !== slug));
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || 'Deleting page failed. Please try again.');
+      } else {
+        alert('Deleting page failed. Please try again.');
+      }
     }
   };
 

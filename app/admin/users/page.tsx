@@ -1,6 +1,7 @@
 'use client';
 
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { Role, Users } from '@/app/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -8,11 +9,11 @@ const AdminUsersList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; username: string; role: string }>({
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; username: string; role: Role }>({
     id: '',
     email: '',
     username: '',
-    role: '',
+    role: 'GUEST',
   });
   const router = useRouter();
 
@@ -24,8 +25,12 @@ const AdminUsersList = () => {
         if (!res.ok) throw new Error('Failed to fetch current user');
         const data = await res.json();
         setCurrentUser(data);
-      } catch (err: any) {
-        setError('Failed to authenticate');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          alert(err.message || 'Failed to authenticate.');
+        } else {
+          alert('Failed to authenticate.');
+        }
       }
     }
 
@@ -38,8 +43,12 @@ const AdminUsersList = () => {
         if (!res.ok) throw new Error('Failed to fetch users');
         const data = await res.json();
         setUsers(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || 'Failed to authenticate.');
+        } else {
+          setError('Failed to authenticate.');
+        }
       } finally {
         setLoading(false);
       }
@@ -65,9 +74,13 @@ const AdminUsersList = () => {
       });
 
       if (!res.ok) throw new Error('Failed to delete user');
-      setUsers(users.filter((user: any) => user.id !== id)); // Remove deleted user from state
-    } catch (err: any) {
-      alert(err.message);
+      setUsers(users.filter((user: Users) => user.id !== id)); // Remove deleted user from state
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || 'Delete user failed.');
+      } else {
+        alert('Delete user failed.');
+      }
     }
   };
 
@@ -106,7 +119,7 @@ const AdminUsersList = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user: any, index) => (
+                {users.map((user: Users, index) => (
                   <tr
                     key={user.id}
                     className={`${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
@@ -119,7 +132,7 @@ const AdminUsersList = () => {
                     <td className="p-4 text-gray-200">{new Date(user.createdAt).toLocaleString()}</td>
                     <td className="p-4 text-gray-200">{new Date(user.updatedAt).toLocaleString()}</td>
                     <td className="p-4 flex space-x-2">
-                      {(currentUser.role === 'ADMIN' || (currentUser.role !== 'ADMIN' && user.id === currentUser.id)) && (
+                      {(currentUser.role === 'ADMIN' || user.id === currentUser.id) && (
                         <button
                           className="px-3 py-1 text-sm bg-green-500 text-white rounded shadow hover:bg-green-600 transition"
                           onClick={() => router.push(`/admin/users/${user.id}`)}

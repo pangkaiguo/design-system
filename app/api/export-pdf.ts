@@ -14,6 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.setHeader("Content-Type", "application/pdf");
       res.send(pdfBytes);
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Failed to export PDF" });
     }
   } else {

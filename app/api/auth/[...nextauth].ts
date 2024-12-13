@@ -2,16 +2,24 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { Role } from "@/app/types";
 
 const prisma = new PrismaClient();
 
 declare module "next-auth" {
+  interface User {
+    id: string;
+    email: string;
+    username: string;
+    role: Role;
+  }
+
   interface Session {
     user: {
       id: string;
       email: string;
       username: string;
-      role: string;
+      role: Role;
     };
   }
 }
@@ -49,12 +57,12 @@ export default NextAuth({
           throw new Error("Invalid email/username or password");
         }
 
-        return { id: user.id, email: user.email, username: user.username, role: user.role };
+        return { id: user.id, email: user.email, username: user.username, role: user.role as Role };
       },
     }),
   ],
   session: {
-    strategy: "jwt", 
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -63,7 +71,7 @@ export default NextAuth({
         token.id = user.id;
         token.email = user.email;
         token.username = user.username;
-        token.role = user.role;
+        token.role = user.role as Role;
       }
       return token;
     },
@@ -73,7 +81,7 @@ export default NextAuth({
           id: token.id as string,
           email: token.email as string,
           username: token.username as string,
-          role: token.role as string,
+          role: token.role as Role,
         };
       }
       return session;

@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
   try {
     jwt.verify(token, JWT_SECRET);
     return NextResponse.json({ isAuthenticated: true });
-  } catch (error) {
+  } catch (err: unknown) {
+    console.error(err);
     return NextResponse.json({ isAuthenticated: false }, { status: 401 });
   }
 }

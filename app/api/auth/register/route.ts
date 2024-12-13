@@ -69,8 +69,11 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ message: 'User registered successfully', user });
-  } catch (error: any) {
-    console.error(error.message);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err);
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    return NextResponse.json({ error: 'An error occurred' }, { status: 400 });
   }
 }

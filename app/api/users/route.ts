@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Gender, Role } from '@/app/types';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
@@ -10,9 +11,9 @@ interface UserPayload {
   id?: string;
   email: string;
   password?: string;
-  role: string;
+  role: Role;
   username?: string;
-  gender?: string;
+  gender?: Gender;
 }
 
 // Middleware to check if the user is admin
@@ -20,14 +21,14 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get('token');
   if (!token) return false;
   try {
-    const decoded = jwt.verify(token.value, JWT_SECRET) as { role: string };
+    const decoded = jwt.verify(token.value, JWT_SECRET) as { role: Role };
     return decoded.role === 'ADMIN';
   } catch {
     return false;
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const users = await prisma.users.findMany({
       select: {

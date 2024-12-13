@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // Get all pages
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const pages = await prisma.pages.findMany();
     return NextResponse.json(pages);

@@ -45,8 +45,12 @@ export function middleware(req: NextRequest) {
       }
       return response; // Allow access to other pages
     })
-    .catch((err) => {
-      console.error('JWT verification failed in middleware:', err);
+    .catch((err: unknown) => {
+      if (err instanceof Error) {
+        console.log('JWT verification failed in middleware:', err.message);
+      } else {
+        console.log('JWT verification failed in middleware');
+      }
 
       // Token verification failed, clear cookie and redirect to /login
       const failedResponse = NextResponse.redirect(loginPageRedirect);

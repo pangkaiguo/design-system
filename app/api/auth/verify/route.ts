@@ -16,7 +16,8 @@ export async function POST(req: Request) {
     // verify the JWT
     const decoded = jwt.verify(token, JWT_SECRET);
     return NextResponse.json({ valid: true, decoded });
-  } catch (error) {
+  } catch (err: unknown) {
+    console.error(err);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }

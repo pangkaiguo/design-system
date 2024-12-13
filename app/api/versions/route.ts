@@ -25,14 +25,16 @@ import { PrismaClient } from '@prisma/client';
 // console.log(newVersion);
 
 
-const prisma: any = new PrismaClient();
+const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const versions = await prisma.versions.findMany();
     return NextResponse.json(versions);
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err.message);
+    }
     return NextResponse.json({ error: 'Failed to fetch versions' }, { status: 500 });
   }
 }
@@ -54,8 +56,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(newVersion, { status: 201 });
-  } catch (error: any) {
-    console.error(error.message);
-    return NextResponse.json({ error: 'Failed to create version' }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err.message);
+    }
+    return NextResponse.json({ error: 'Failed to fetch versions' }, { status: 500 });
   }
 }

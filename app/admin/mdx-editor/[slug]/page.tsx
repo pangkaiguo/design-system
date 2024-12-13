@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MDEditor from '@uiw/react-md-editor'; // import MDEditor component
 
-const EditPage = (props: { params: { slug: string } }) => {
+const EditPage = (props: { params: Promise<{ slug: string }> }) => {
   const [page, setPage] = useState({ title: '', content: '' });
   const router = useRouter();
   // State to hold the slug value

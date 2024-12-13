@@ -35,6 +35,12 @@ const PageEditor = () => {
     fetchPage();
   }, [isEditMode, slug]);
 
+  const handleContentChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setContent(value);
+    }
+  };
+
   const handleSubmit = async () => {
     if (loading) return;
     if (!title || !content) {
@@ -65,8 +71,12 @@ const PageEditor = () => {
 
       alert(`Page ${isEditMode ? 'updated' : 'created'} successfully`);
       router.push('/admin/mdx-editor');
-    } catch (error: any) {
-      setError(error.message || 'Unexpected error');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Unexpected error');
+      } else {
+        setError('Unexpected error');
+      }
     } finally {
       setLoading(false);
     }
@@ -91,7 +101,7 @@ const PageEditor = () => {
 
         <MDEditor
           value={content}
-          onChange={setContent}
+          onChange={handleContentChange}
           className="p-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[500px]"
         />
 

@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
     // verify JWT token
     const decoded = jwt.verify(token, JWT_SECRET);
     return NextResponse.json(decoded); // Return the decoded JWT payload (user info)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    console.error(error);
     return handleError('Invalid or expired token', 401);
   }
 }

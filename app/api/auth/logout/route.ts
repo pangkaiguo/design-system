@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // /api/auth/logout
 // const response = await fetch('/api/auth/logout', {
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // const data = await response.json();
 // console.log(data);
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const res = NextResponse.json({ message: 'Logout successful' });
     res.cookies.set('token', '', {
@@ -20,8 +20,11 @@ export async function POST(req: NextRequest) {
     });
 
     return res;
-  } catch (error: any) {
-    console.error(error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err);
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
   }
 }

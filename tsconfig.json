@@ -18,6 +18,8 @@
         "name": "next"
       }
     ],
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]

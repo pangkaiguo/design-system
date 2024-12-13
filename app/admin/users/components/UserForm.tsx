@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
@@ -25,8 +25,12 @@ const UserForm = ({ id }: { id?: string }) => {
         const data = await res.json();
         setCurrentUser(data);
         console.log(data);
-      } catch (err: any) {
-        setError('Failed to authenticate');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || 'Fetching current user failed.');
+        } else {
+          setError('Fetching current user failed.');
+        }
       }
     }
     fetchCurrentUser();
@@ -38,8 +42,12 @@ const UserForm = ({ id }: { id?: string }) => {
           if (!res.ok) throw new Error('Failed to fetch user');
           const data = await res.json();
           setForm(data);
-        } catch (err: any) {
-          setError(err.message);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            alert(err.message || 'Fetching user failed.');
+          } else {
+            alert('Fetching user failed.');
+          }
         } finally {
           setLoading(false);
         }
@@ -50,7 +58,7 @@ const UserForm = ({ id }: { id?: string }) => {
     }
   }, [id]);
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const method = id ? 'PUT' : 'POST';
     const endpoint = id ? `/api/users/${id}` : '/api/users';
@@ -62,14 +70,18 @@ const UserForm = ({ id }: { id?: string }) => {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) { 
-        throw new Error(`Failed to ${id ? 'update' : 'create'} user`); 
+      if (!res.ok) {
+        throw new Error(`Failed to ${id ? 'update' : 'create'} user`);
       } else {
         alert(`User ${id ? 'updated' : 'created'} successfully`);
         router.push('/admin/users');
       }
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || 'Submitting form failed.');
+      } else {
+        alert('Submitting form failed.');
+      }
     }
   };
 

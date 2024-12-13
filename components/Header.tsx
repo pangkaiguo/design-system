@@ -10,9 +10,12 @@ const Header = () => {
   const isAuthPage = pathname === '/login' || pathname === '/register';
   const isFrontPage = pathname.includes('/pages') || pathname === '/';
   const [username, setUsername] = useState<string | null>(null);
-  
+
   // Fetch current user info on mount
   useEffect(() => {
+    if (isAuthPage) {
+      return;
+    }
     const fetchUser = async () => {
       try {
         const res = await fetch('/api/auth/current-user', {
@@ -34,7 +37,7 @@ const Header = () => {
     };
 
     fetchUser();
-  }, []);
+  }, [isAuthPage]);
 
   const handleLogout = async () => {
     try {

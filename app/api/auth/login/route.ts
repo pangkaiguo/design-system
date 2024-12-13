@@ -81,8 +81,10 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
-  } catch (error: any) {
-    console.error(error.message);
-    return handleError(error.message, 500);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err.message);
+      return handleError(err.message, 500);
+    }
   }
 }

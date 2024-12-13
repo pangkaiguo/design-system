@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // get single page by slug
-export async function GET(req: Request, { params }: { params: { slug: string } }) {
-  const { slug } = await params;
+export async function GET(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/').pop();
 
   if (!slug) {
     return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
@@ -29,8 +29,8 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
 }
 
 // update page data
-export async function PUT(req: Request, { params }: { params: { slug: string } }) {
-  const { slug } = await params;
+export async function PUT(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/').pop();;
 
   if (!slug) {
     return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
@@ -56,8 +56,8 @@ export async function PUT(req: Request, { params }: { params: { slug: string } }
 }
 
 // delete page by slug
-export async function DELETE(req: Request, { params }: { params: { slug: string } }) {
-  const { slug } = await params;
+export async function DELETE(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/').pop();
 
   if (!slug) {
     return NextResponse.json({ error: 'Slug is required' }, { status: 400 });

@@ -34,10 +34,14 @@ const RegisterPage = () => {
       if (!res.ok) throw new Error('Registration failed');
 
       const data = await res.json();
-      alert('Registration successful!', data?.message);
+      alert(`Registration successful! ${data.message}`);
       router.push('/login');
-    } catch (err: any) {
-      setError('Registration failed. Please try again.', err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Registration failed. Please try again.');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -46,7 +50,7 @@ const RegisterPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-black text-white">
       <div className="w-full max-w-md p-8 bg-gray-800 rounded shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">DesignSystem CMS Registration</h1>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         <form onSubmit={handleRegister} className="space-y-4">
           <input
@@ -100,7 +104,7 @@ const RegisterPage = () => {
           </button>
         </form>
         <p className="mt-4 text-center">
-          Already have an account?{' '}
+          Already have an account? &nbsp;
           <a href="/login" className="text-blue-500 hover:underline">
             Login here
           </a>

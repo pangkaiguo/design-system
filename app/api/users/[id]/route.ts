@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { Role, Gender } from '@/app/types';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
@@ -11,7 +12,7 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
   if (!token) return false;
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { role: Role };
     return decoded.role === 'ADMIN';
   } catch {
     return false;
@@ -51,9 +52,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { email, role, username, gender } = (await req.json()) as {
       email: string;
-      role: string;
+      role: Role;
       username?: string;
-      gender?: string;
+      gender?: Gender;
     };
 
     if (!email || !role) {
@@ -72,7 +73,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         email,
         role,
         username,
-        gender,
+        gender: gender as Gender,
       },
     });
 
